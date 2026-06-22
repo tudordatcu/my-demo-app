@@ -55,7 +55,7 @@ func NewMetrics(reg *prometheus.Registry) *Metrics {
 			Name: "vois_billing_errors_total",
 			Help: "Total billing/invoice errors.",
 		}),
-		// OBS-07: labelling a gauge by msisdn is a high-cardinality anti-pattern.
+		// Gauge labelled per msisdn — high cardinality at scale.
 		billingAmountCents: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: "vois_billing_amount_cents",
 			Help: "Most recent invoice total in cents, labelled by msisdn.",
@@ -105,7 +105,7 @@ func (m *Metrics) IncBillingRun() { m.billingRuns.Inc() }
 func (m *Metrics) IncBillingError() { m.billingErrors.Inc() }
 
 // SetBillingAmount records the latest invoice total for a subscriber, labelled
-// by msisdn (OBS-07 high-cardinality anti-pattern).
+// by msisdn.
 func (m *Metrics) SetBillingAmount(msisdn string, cents int64) {
 	m.billingAmountCents.WithLabelValues(msisdn).Set(float64(cents))
 }

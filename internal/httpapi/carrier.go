@@ -6,8 +6,8 @@ import (
 )
 
 // CarrierClient simulates a downstream HLR/carrier lookup dependency.
-// OBS-05: an external dependency whose failures should be observable via
-// the invoice path (TG-INVOICE calls Lookup); failures occur ~failureRate.
+// Failures occur at approximately failureRate; the invoice path calls Lookup
+// and surfaces these failures as 502 responses.
 type CarrierClient struct {
 	failureRate float64
 }

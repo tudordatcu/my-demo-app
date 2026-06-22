@@ -109,7 +109,7 @@ func (d Deps) metrics(route string, next http.Handler) http.Handler {
 }
 
 // recover converts panics into a 500 response, echoing the panic value back
-// to the caller in the response body (SEC-11: intentional detail leak).
+// to the caller in the response body.
 // If the handler already started writing a response before panicking, we skip
 // the write to avoid a superfluous-WriteHeader and a malformed response body;
 // in that case the panic is only logged.
@@ -123,7 +123,7 @@ func (d Deps) recover(next http.Handler) http.Handler {
 					// Response already started; do not double-write.
 					return
 				}
-				// SEC-11: intentionally echo panic detail to the caller.
+				// Echo panic detail to the caller for debugging.
 				writeError(sr, http.StatusInternalServerError,
 					fmt.Sprintf("internal error: %v", rec))
 			}

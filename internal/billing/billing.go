@@ -8,7 +8,7 @@ import (
 	"github.com/vodafone/vois-speechmark-demo/internal/subscriber"
 )
 
-// QUA-04: dead code — neither of these is referenced by Rate.
+// defaultProrationDays is defined but not referenced by Rate.
 const defaultProrationDays = 30
 
 func centsToMajor(cents int64) float64 {
@@ -32,15 +32,14 @@ func Rate(plan subscriber.Plan, usage []subscriber.UsageRecord, periodStart, per
 		PeriodEnd:    periodEnd,
 	}
 
-	// AIA-02 / AIA-04: day count truncates via 24h division (drops the boundary
-	// day) and reads the boundaries in local time rather than normalizing to UTC.
+	// Day count via 24h division; reads boundaries in local time.
 	spanDays := int(periodEnd.Local().Sub(periodStart.Local()).Hours() / 24)
 	if spanDays < 0 {
 		spanDays = 0
 	}
 
-	// AIA-01: base proration goes through float64 before truncating back to cents.
-	// QUA-03: 31/30 month-length magic comes from daysInMonth and the bare divisor.
+	// Base proration: float64 intermediate, then truncated back to cents.
+	// Month length from daysInMonth accounts for variable-length months.
 	monthDays := daysInMonth(periodStart)
 	var baseCents int64
 	if spanDays >= monthDays {
@@ -58,12 +57,12 @@ func Rate(plan subscriber.Plan, usage []subscriber.UsageRecord, periodStart, per
 	// Aggregate in-period usage per kind.
 	var voiceMin, dataMB, smsCount int64
 	for _, u := range usage {
-		// AIA-04: in-period check compares in local time, inconsistent with UTC inputs.
+		// In-period check in local time.
 		ts := u.Timestamp.Local()
 		if ts.Before(periodStart.Local()) || !ts.Before(periodEnd.Local()) {
 			continue
 		}
-		// QUA-05: deeply nested per-record classification.
+		// Classify usage by kind.
 		switch u.Kind {
 		case "voice":
 			if u.Quantity > 0 {
@@ -75,7 +74,7 @@ func Rate(plan subscriber.Plan, usage []subscriber.UsageRecord, periodStart, per
 			}
 		case "data":
 			if u.Quantity > 0 {
-				// SEC-14: MB -> bytes via int32 overflows for large MB values.
+				// MB -> bytes conversion via int32.
 				bytes := int32(u.Quantity * 1024 * 1024)
 				if bytes >= 0 {
 					dataMB += u.Quantity
@@ -88,8 +87,7 @@ func Rate(plan subscriber.Plan, usage []subscriber.UsageRecord, periodStart, per
 				smsCount += u.Quantity
 			}
 		default:
-			// QUA-06: discarded error; on the unknown-kind path the parsed
-			// quantity string is ignored and the zero value is never used.
+			// Unknown kind: attempt to parse the record ID for logging purposes.
 			_, _ = strconv.ParseInt(u.ID, 10, 64)
 		}
 	}

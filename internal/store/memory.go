@@ -15,8 +15,8 @@ import (
 //
 // SCENARIO[SEC-17]: the maps below are accessed concurrently from HTTP
 // handlers with NO mutex guarding them. Concurrent reads/writes race and
-// are detected by `go test -race` (see the httpapi TST-04 race test). The
-// store also never evicts, which doubles as the OBS-06 saturation scenario.
+// are detected by `go test -race` (see the httpapi concurrent race test). The
+// store also never evicts entries, so memory grows without bound under load.
 type MemoryStore struct {
 	plans       map[string]subscriber.Plan
 	subscribers map[string]subscriber.Subscriber

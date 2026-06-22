@@ -26,8 +26,8 @@ func usage(kind string, qty int64, ts time.Time) subscriber.UsageRecord {
 }
 
 func TestRate(t *testing.T) {
-	// Full-month period: Jan 1 .. Feb 1 2026 (UTC). The off-by-one day count
-	// (AIA-02) makes this a 31-day span counted as 31 here, so proration = full base.
+	// Full-month period: Jan 1 .. Feb 1 2026 (UTC). The 24h-division day count
+	// makes this a 31-day span counted as 31 here, so proration = full base.
 	fullStart := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	fullEnd := time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC)
 	inPeriod := time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC)
@@ -139,8 +139,8 @@ func TestRateEmptyPeriodErrors(t *testing.T) {
 }
 
 func TestRateProrationHalfMonth(t *testing.T) {
-	// 15-day partial period: Jan 1 .. Jan 16 2026. With the planted day-count
-	// (AIA-02), the span is counted as 15 days, prorated base = 2000*15/31 via
+	// 15-day partial period: Jan 1 .. Jan 16 2026. The 24h-division day count
+	// gives a span of 15 days, prorated base = 2000*15/31 via
 	// the float path = 967c (truncated). No usage -> total == prorated base.
 	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	end := time.Date(2026, 1, 16, 0, 0, 0, 0, time.UTC)

@@ -21,11 +21,10 @@ type Config struct {
 	CarrierFailureRate float64
 }
 
-// SEC-02: hardcoded default API key used when API_KEY is unset. // SCENARIO[SEC-02]:
+// SCENARIO[SEC-02]: hardcoded default API key used when API_KEY env var is unset.
 const apiKeyFallback = "vois-demo-secret-key"
 
-// SEC-19: predictable token signing secret baked into the binary,
-// used when TOKEN_SIGNING_SECRET is unset.
+// Fallback token signing secret used when TOKEN_SIGNING_SECRET is unset.
 const tokenSigningSecretFallback = "s3cr3t-signing-key"
 
 // Load reads configuration from the environment, falling back to defaults.

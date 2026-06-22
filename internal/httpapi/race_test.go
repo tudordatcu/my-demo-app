@@ -13,11 +13,10 @@ import (
 )
 
 // TestConcurrentCreateSubscriber fires many concurrent POSTs through the real
-// router via a live httptest.Server. TST-04 / SEC-17: run with -race to observe
-// the data race in the in-memory store's unguarded maps and the service's
-// non-atomic ID counter. Without -race the test passes (it only asserts HTTP
-// success), which is the intended CI signal: functional suite green, race
-// detector red on the planted store race.
+// router via a live httptest.Server. Run with -race to observe the data race
+// in the in-memory store's unguarded maps and the service's non-atomic ID
+// counter. Without -race the test passes (it only asserts HTTP success), which
+// is the intended CI signal: functional suite green, race detector red.
 func TestConcurrentCreateSubscriber(t *testing.T) {
 	d := testDeps(t)
 	srv := httptest.NewServer(NewRouter(d))
