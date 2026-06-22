@@ -28,14 +28,14 @@ jobs:
         run: go vet ./...
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v6.3.0
         with:
           version: v1.62.2
         # Lint surfaces planted quality smells; do not block the rest of the pipeline.
         continue-on-error: true
 
       - name: gosec
-        uses: securego/gosec@master
+        uses: securego/gosec@v2.24.7
         with:
           args: -no-fail -fmt sarif -out gosec.sarif ./...
         # gosec intentionally reports planted SEC-* scenarios.
