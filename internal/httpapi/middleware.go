@@ -14,13 +14,17 @@ type ctxKey string
 const ctxKeyRequestID ctxKey = "request_id"
 
 // statusRecorder captures the response status code for logging/metrics.
+// wroteHeader is set on the first WriteHeader or Write call so the recover
+// middleware can detect a partially-written response and avoid a double-write.
 type statusRecorder struct {
 	http.ResponseWriter
-	status int
+	status      int
+	wroteHeader bool
 }
 
 func (sr *statusRecorder) WriteHeader(code int) {
 	sr.status = code
+	sr.wroteHeader = true
 	sr.ResponseWriter.WriteHeader(code)
 }
 
@@ -28,6 +32,7 @@ func (sr *statusRecorder) Write(b []byte) (int, error) {
 	if sr.status == 0 {
 		sr.status = http.StatusOK
 	}
+	sr.wroteHeader = true
 	return sr.ResponseWriter.Write(b)
 }
 
@@ -104,17 +109,26 @@ func (d Deps) metrics(route string, next http.Handler) http.Handler {
 }
 
 // recover converts panics into a 500 response, echoing the panic value back
-// to the caller in the response body.
+// to the caller in the response body (SEC-11: intentional detail leak).
+// If the handler already started writing a response before panicking, we skip
+// the write to avoid a superfluous-WriteHeader and a malformed response body;
+// in that case the panic is only logged.
 func (d Deps) recover(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sr := &statusRecorder{ResponseWriter: w}
 		defer func() {
 			if rec := recover(); rec != nil {
 				d.Logger.Error("panic recovered", "panic", rec, "path", r.URL.Path)
-				writeError(w, http.StatusInternalServerError,
+				if sr.wroteHeader {
+					// Response already started; do not double-write.
+					return
+				}
+				// SEC-11: intentionally echo panic detail to the caller.
+				writeError(sr, http.StatusInternalServerError,
 					fmt.Sprintf("internal error: %v", rec))
 			}
 		}()
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(sr, r)
 	})
 }
 
