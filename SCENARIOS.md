@@ -61,7 +61,7 @@ Module path: `github.com/vodafone/vois-speechmark-demo`. Paths below are relativ
 | AIA-06 | `internal/httpapi/handlers_misc.go` (`handleDeleteSubscriber`, line 101) | Feature gap — `DELETE /v1/subscribers/{id}` returns 501 + TODO | **Starter** | "Implement `DELETE /v1/subscribers/{id}`; it currently returns 501. Add store + service support and a test." |
 | AIA-07 | `internal/httpapi/handlers_misc.go` (`handleChangePlan`) | Feature gap — plan change with proration returns 501 + TODO | Subtle | "Implement `PATCH /v1/subscribers/{id}/plan` with prorated billing; it currently returns 501." |
 | AIA-08 | `internal/httpapi/handlers_subscribers.go` (`handleCreateSubscriber`) + `internal/httpapi/handlers_misc.go` | Refactor target — the god function + duplicated validation | Subtle | "Refactor the subscriber-create handler and de-duplicate validation across `internal/httpapi`." |
-| AIA-09 | `internal/billing/billing.go` (exported symbols — `Rate`, `daysInMonth`, `centsToMajor`) | Docs gap — exported billing types/functions lack doc comments | Subtle | "Generate Go doc comments for all exported symbols in `internal/billing`." |
+| AIA-09 | `internal/billing/billing.go` (exported symbol — `Rate`; unexported: `daysInMonth`, `centsToMajor`) | Docs gap — exported `Rate` function lacks a doc comment; `daysInMonth` and `centsToMajor` are unexported | Subtle | "Generate Go doc comments for all exported symbols in `internal/billing`." |
 | AIA-10 | `internal/store/memory.go`, `internal/store/sqlite.go`, `internal/auth/auth.go` | Test gap — `store` and `auth` packages have no `_test.go` files | Subtle | "Write table-driven tests for `internal/store` and `internal/auth`; both packages are currently untested." |
 
 ## Track 4 — Observability / APM
@@ -83,7 +83,7 @@ Module path: `github.com/vodafone/vois-speechmark-demo`. Paths below are relativ
 |---|---|---|---|---|
 | TST-01 | `internal/billing/billing_test.go` (`TestRate`) | Table-driven tests — billing rating (good example) | Subtle (example) | "Review the billing tests as a table-driven style reference; extend them to cover proration edge cases." |
 | TST-02 | `internal/httpapi/router_test.go`, `internal/httpapi/handlers_misc_test.go` | Handler tests — `httptest` against `NewRouter` for a range of endpoints | Subtle (example) | "Show the handler tests; add `httptest` coverage for an endpoint that lacks it." |
-| TST-03 | `internal/httpapi/invoice_test.go` (`seedInvoiceFixture`) | Flaky test — usage record seeded with `time.Now().UTC()` makes the invoice time-window dependent | **Starter** | "There is a time-dependent test in `internal/httpapi/invoice_test.go`. Diagnose the flakiness and make it deterministic." |
+| TST-03 | `internal/billing/flaky_test.go` (`TestRateProratesCurrentMinuteFraction`) | Flaky test — proration assertion anchored to `time.Now().Second()` fails ~59/60 seconds; run with `-tags flaky` | **Starter** | "There is a deliberately flaky, time-dependent test in `internal/billing/flaky_test.go` (run with `-tags flaky`). Diagnose why it fails most of the time and make it deterministic." |
 | TST-04 | `internal/httpapi/race_test.go` (`TestConcurrentCreateSubscriber`, build tag `race`) | Race test — concurrent `POST /v1/subscribers` under `-race` (exercises SEC-17) | Subtle | "Run the race test with `-race`; explain the data race it reveals and how to fix the underlying store." |
 | TST-05 | `internal/store/` (no `_test.go`), `internal/auth/` (no `_test.go`) | Coverage gaps — store and auth packages have zero test files (ties to AIA-10) | Subtle | "Report packages with zero test coverage and generate a test plan for `internal/store` and `internal/auth`." |
 
@@ -105,9 +105,7 @@ Module path: `github.com/vodafone/vois-speechmark-demo`. Paths below are relativ
 | SEC-02 | `internal/config/config.go` (line 24) | Hardcoded API-key fallback (`apiKeyFallback` constant). |
 | SEC-17 | `internal/store/memory.go` (line 16) | Unsynchronized map access (data race). |
 | AIA-06 | `internal/httpapi/handlers_misc.go` (line 101) | `DELETE /v1/subscribers/{id}` returns 501. |
-| TST-03 | `internal/httpapi/invoice_test.go` (`seedInvoiceFixture`) | Time-dependent flaky test seeding usage with `time.Now()`. |
-
-> **Note on TST-03 marker:** The `// SCENARIO[TST-03]` in-code comment is absent from the current source — the flaky test is identified by the `time.Now().UTC()` call in `seedInvoiceFixture`. The other three starters (SEC-02, SEC-17, AIA-06) carry the marker exactly as specified.
+| TST-03 | `internal/billing/flaky_test.go` (`TestRateProratesCurrentMinuteFraction`) | Deliberately flaky proration test; run with `-tags flaky` (excluded from default CI suite). |
 
 All other IDs are **subtle** — no in-code marker; discover them with Speechmark.
 

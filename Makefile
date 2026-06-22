@@ -13,7 +13,7 @@ GOFLAGS     ?=
 
 # Tool versions (installed on demand into $(GOBIN) if absent).
 GOLANGCI_LINT_VERSION ?= v1.62.2
-GOSEC_VERSION         ?= v2.21.4
+GOSEC_VERSION         ?= v2.24.7
 
 GOBIN := $(shell $(GO) env GOPATH)/bin
 

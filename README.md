@@ -132,7 +132,7 @@ All JSON over HTTP. `/v1` routes require `Authorization: Bearer <API_KEY>`.
 
 ```bash
 make test        # go test ./...
-make test-race   # go test ./... -race -cover  (canonical; reveals SEC-17)
+make test-race   # go test -race -coverprofile=coverage.out -covermode=atomic ./...  (canonical; reveals SEC-17)
 ```
 
 Coverage gaps in `internal/store` and `internal/auth` are **expected and catalogued** (AIA-10 / TST-05), not accidental.
