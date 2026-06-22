@@ -14,16 +14,6 @@ import (
 // Per-route metrics and the auth wrapper are applied inside the mux so that
 // the Prometheus "route" label is populated with the matched pattern rather
 // than the empty string that a global metrics layer would see before routing.
-//
-// Routes added by sibling tasks (handlers authored there):
-//
-//	GET  /v1/subscribers/{id}/invoice        (Task 13)
-//	GET  /v1/subscribers/{id}/invoice/export (Task 15)
-//	POST /v1/webhooks                        (Task 15)
-//	GET  /v1/diagnostics/ping               (Task 15)
-//	GET  /v1/redirect                       (Task 15)
-//	DELETE /v1/subscribers/{id}             (Task 15)
-//	PATCH  /v1/subscribers/{id}/plan        (Task 15)
 func NewRouter(d Deps) http.Handler {
 	mux := http.NewServeMux()
 
@@ -55,6 +45,12 @@ func NewRouter(d Deps) http.Handler {
 	authed("PATCH /v1/subscribers/{id}/status", d.handleChangeStatus)
 	authed("POST /v1/subscribers/{id}/usage", d.handleAddUsage)
 	authed("GET /v1/subscribers/{id}/invoice", d.handleGetInvoice)
+	authed("GET /v1/subscribers/{id}/invoice/export", d.handleInvoiceExport)
+	authed("DELETE /v1/subscribers/{id}", d.handleDeleteSubscriber)
+	authed("PATCH /v1/subscribers/{id}/plan", d.handleChangePlan)
+	authed("POST /v1/webhooks", d.handleRegisterWebhook)
+	authed("GET /v1/diagnostics/ping", d.handlePing)
+	authed("GET /v1/redirect", d.handleRedirect)
 
 	// Admin — registered without the auth middleware.
 	unauthed("POST /admin/reset", http.HandlerFunc(d.handleAdminReset))
