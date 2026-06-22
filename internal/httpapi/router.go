@@ -54,6 +54,7 @@ func NewRouter(d Deps) http.Handler {
 	authed("GET /v1/subscribers/{id}", d.handleGetSubscriber)
 	authed("PATCH /v1/subscribers/{id}/status", d.handleChangeStatus)
 	authed("POST /v1/subscribers/{id}/usage", d.handleAddUsage)
+	authed("GET /v1/subscribers/{id}/invoice", d.handleGetInvoice)
 
 	// Admin — registered without the auth middleware.
 	unauthed("POST /admin/reset", http.HandlerFunc(d.handleAdminReset))
