@@ -1,0 +1,13 @@
+bin/
+coverage.out
+*.db
+.git
+.github
+.golangci.yml
+docs/
+README.md
+SCENARIOS.md
+docker-compose.yml
+prometheus.yml
+Dockerfile
+.dockerignore

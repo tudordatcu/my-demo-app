@@ -1,0 +1,30 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+    - staticcheck
+    - ineffassign
+    - errcheck
+    - gosec
+    - unused
+    - gosimple
+
+linters-settings:
+  govet:
+    enable-all: true
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  gosec:
+    # Report all rules; severity tuning left default so planted SEC-* issues surface.
+    excludes: []
+
+issues:
+  # Do not hide the planted scenarios behind the default exclusion list.
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
