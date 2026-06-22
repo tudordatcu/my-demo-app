@@ -1,0 +1,21 @@
+# Build artifacts
+/server
+/loadgen
+/dist/
+*.exe
+*.out
+
+# Go test/coverage output
+*.test
+coverage.out
+coverage.html
+
+# SQLite databases produced at runtime
+*.db
+*.db-shm
+*.db-wal
+
+# Local env / editor
+.env
+.env.local
+.DS_Store
