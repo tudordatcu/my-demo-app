@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vois-speechmark-demo:latest
+    container_name: vois-app
+    ports:
+      - "8080:8080"
+    environment:
+      ADDR: ":8080"
+      STORE: "memory"
+      LOG_LEVEL: "info"
+      # OTLP left empty -> stdout span exporter; point at a collector to enable OTLP.
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: vois-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: vois-grafana
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     GF_SECURITY_ADMIN_PASSWORD: "admin"
+  #   depends_on:
+  #     - prometheus
+  #   restart: unless-stopped
