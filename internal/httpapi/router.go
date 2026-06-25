@@ -44,6 +44,8 @@ func NewRouter(d Deps) http.Handler {
 	authed("GET /v1/subscribers/{id}", d.handleGetSubscriber)
 	authed("PATCH /v1/subscribers/{id}/status", d.handleChangeStatus)
 	authed("POST /v1/subscribers/{id}/usage", d.handleAddUsage)
+	// Usage summary — read-only aggregate of a subscriber's current-period usage.
+	unauthed("GET /v1/subscribers/{id}/usage-summary", http.HandlerFunc(d.handleUsageSummary))
 	authed("GET /v1/subscribers/{id}/invoice", d.handleGetInvoice)
 	authed("GET /v1/subscribers/{id}/invoice/export", d.handleInvoiceExport)
 	authed("DELETE /v1/subscribers/{id}", d.handleDeleteSubscriber)
